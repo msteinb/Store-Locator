@@ -23,7 +23,7 @@
 	<div id="storeList">
 		<form class="search" name="search" method="post" action="">
 			<input type="text" name="address" placeholder="Search: City, State or Zip" />
-			<button>Go</button>
+			<button class="searchBtn">Go</button>
 		</form>
 		<ul class="list"></ul>
 	</div>

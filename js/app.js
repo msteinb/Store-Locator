@@ -108,13 +108,12 @@ $(function() {
 				});
 			});
 			
-			return def.promise();
+			return dfr.promise();
 		}
 	});
 		
 	Storelocator.StoreView = Backbone.View.extend({
 		tagName: 'li',
-		className: 'store-row',
 		template: _.template($('#storeTpl').html()),
 		
 		events: {
@@ -136,6 +135,10 @@ $(function() {
 		
 	Storelocator.StoreListView = Backbone.View.extend({
 		el: $('#storeList'),
+		
+		events: {
+			//'submit .search': 'search'
+		},
 		
 		initialize: function() {
 			var self = this;
@@ -167,11 +170,13 @@ $(function() {
 				geocoder = new google.maps.Geocoder();
 				
 			geocoder.geocode({'address': address}, function(results, status) {
-				self.trigger('locator:updateLocation', results[0].geometry.location, results.formatted_address);
+				self.trigger('updateLocation', results[0].geometry.location, results.formatted_address);
+				
 				var coords = {
 					lat: results[0].geometry.location.lat(),
 					lng: results[0].geometry.location.lng()
 				}
+				
 				$.when(self.options.stores.sortByDistanceFrom(coords)).then(function(stores) {
 					self.refreshList(stores);
 				});
@@ -246,13 +251,14 @@ $(function() {
 		},
 		
 		updateLocation: function(coords, formatted_address) {
+			/*
 			var hereMarker = new google.maps.Marker({
 					animation: google.maps.Animation.DROP,
 					map: this.map,
 					position: coords,
 					title: formatted_address
 				});
-			
+			//*/
 			this.map.setCenter(coords);
 			this.map.setZoom(this.options.selectZoomLevel);
 		}
@@ -261,8 +267,36 @@ $(function() {
 	Storelocator.AppView = Backbone.View.extend({
 		el: $('#storelocatorApp'),
 		
+		events: {
+			'submit #storeList .search': 'search'
+		},
+		
+		search: function(event) {
+			event.preventDefault();
+			
+			var self = this,
+				form = $(event.target),
+				address = $('input[name=address]', form).val(),
+				geocoder = new google.maps.Geocoder();
+				
+			geocoder.geocode({'address': address}, function(results, status) {
+				var coords = {
+					lat: results[0].geometry.location.lat(),
+					lng: results[0].geometry.location.lng()
+				}
+				
+				$.when(self.stores.sortByDistanceFrom(coords)).then(function(stores) {
+					self.storeListView.refreshList(stores);
+					self.mapView.updateLocation(results[0].geometry.location, results.formatted_address);
+					self.router.navigate('search/' + encodeURIComponent(address));
+				});
+			});
+		},
+		
 		initialize: function() {
-			this.stores = new Storelocator.Stores([{"id":"1","lat":"40.70834","lng":"-74.01093","name":"Store One","address":"100 Broadway","city":"New York","state":"New York","zip":"10005","country":"USA"},{"id":"2","lat":"40.71065","lng":"-74.00892","name":"Store Two","address":"200 Broadway","city":"New York","state":"New York","zip":"10038","country":"USA"},{"id":"3","lat":"40.71538","lng":"-74.00543","name":"Store Three","address":"300 Broadway","city":"New York","state":"New York","zip":"10007","country":"USA"}]);
+			var self = this;
+			
+			this.stores = new Storelocator.Stores([{"id":"1","lat":"40.70834","lng":"-74.01093","name":"Store One","address":"100 Broadway","city":"New York","state":"New York","zip":"10005","country":"USA"},{"id":"2","lat":"40.71065","lng":"-74.00892","name":"Store Two","address":"200 Broadway","city":"New York","state":"New York","zip":"10038","country":"USA"},{"id":"3","lat":"40.71538","lng":"-74.00543","name":"Store Three","address":"300 Broadway","city":"New York","state":"New York","zip":"10007","country":"USA"},{"id":"4","lat":"34.05485","lng":"-118.38369","name":"Store Four","address":"1171 S Robertson Blvd","city":"Los Angeles","state":"CA","zip":"90035","country":"USA"},{"id":"5","lat":"34.05614","lng":"-118.39524","name":"Store Five","address":"1180 S Beverly Dr","city":"Los Angeles","state":"CA","zip":"90035","country":"USA"}]);
 			
 			this.mapView = new Storelocator.MapView({
 				center: {lat: 20, lng: -90},
@@ -271,7 +305,7 @@ $(function() {
 				stores: this.stores
 			});
 			
-			var router = new Storelocator.Router({
+			this.router = new Storelocator.Router({
 				stores: this.stores,
 				mapView: this.mapView
 			});
@@ -279,10 +313,12 @@ $(function() {
 			Backbone.history.start({pushState: true, root: '/storelocator/storelocator.php/'});
 			
 			this.stores.bind('change:selected', function(store) {
-				router.navigate(sanitizeName(store.get('name')));
+				self.router.navigate(sanitizeName(store.get('name')));
 			});
 			
 			this.storeListView = new Storelocator.StoreListView({stores: this.stores});
+			
+			
 		},
 		
 		render: function() {
