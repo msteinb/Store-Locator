@@ -11,7 +11,7 @@
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAfw9FI5V26iEmbKlf4MVcyd2xjwX5Nds8&sensor=false" ></script>
 	<script type="text/javascript" src="/storelocator/js/app.js"></script>
 	<script>
-		$(function(){
+		$(function() {
 			var appView = new Storelocator.AppView();
 			appView.render();
 		});

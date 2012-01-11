@@ -4,7 +4,7 @@ $(function() {
 	function sanitizeName(name) {
 		return name.toLowerCase().replace(/ /g, '-');
 	}
-	//*	
+		
 	Storelocator.Router = Backbone.Router.extend({
 		routes: {
 			'search/:query': 'search',
@@ -70,7 +70,7 @@ $(function() {
 			return dfr.promise();
 		}
 	});
-	//*	
+		
 	Storelocator.Stores = Backbone.Collection.extend({
 		model: Storelocator.Store,
 		
@@ -111,7 +111,7 @@ $(function() {
 			return def.promise();
 		}
 	});
-	//*	
+		
 	Storelocator.StoreView = Backbone.View.extend({
 		tagName: 'li',
 		className: 'store-row',
@@ -130,12 +130,10 @@ $(function() {
 		
 		selectStore: function() {
 			var name = this.model.get('name');
-			//Router.navigate('store/' + sanitizeName(name));
-			//this.trigger('select', this.model);
 			this.model.set({selected: true});
 		}
 	});
-	//*	
+		
 	Storelocator.StoreListView = Backbone.View.extend({
 		el: $('#storeList'),
 		
@@ -198,7 +196,7 @@ $(function() {
 			this.render();
 		}
 	});
-	//*	
+		
 	Storelocator.MapView = Backbone.View.extend({
 		el: $('#mapCanvas'),
 		
