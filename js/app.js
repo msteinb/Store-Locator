@@ -8,7 +8,7 @@ $(function() {
 	Storelocator.Router = Backbone.Router.extend({
 		routes: {
 			'search/:query': 'search',
-			'store/:name': 'loadStore'
+			':name': 'loadStore'
 		},
 		
 		initialize: function(options) {
@@ -23,8 +23,18 @@ $(function() {
 			var store = this.stores.find(function(store) {
 				return name == sanitizeName(store.get('name'));
 			});
-	
-			this.mapView.selectMarker(store);
+			
+			store.set({selected:true});
+			/*
+				var address = store.get('address') + ' ' +
+							  store.get('city') + ' ' +
+							  store.get('state') + ' ' +
+							  store.get('zip') + ' ' +
+							  store.get('country');
+							  
+				this.storeListView.updateLocation(address);
+				this.mapView.selectMarker(store);
+			//*/
 		}
 	});
 	
@@ -128,17 +138,12 @@ $(function() {
 		},
 		
 		selectStore: function() {
-			var name = this.model.get('name');
 			this.model.set({selected: true});
 		}
 	});
 		
 	Storelocator.StoreListView = Backbone.View.extend({
 		el: $('#storeList'),
-		
-		events: {
-			//'submit .search': 'search'
-		},
 		
 		initialize: function() {
 			var self = this;
@@ -161,37 +166,12 @@ $(function() {
 			});
 		},
 		
-		search: function(event) {
-			event.preventDefault();
-			
-			var self = this,
-				form = $(event.target),
-				address = $('input[name=address]', form).val(),
-				geocoder = new google.maps.Geocoder();
-				
-			geocoder.geocode({'address': address}, function(results, status) {
-				self.trigger('updateLocation', results[0].geometry.location, results.formatted_address);
-				
-				var coords = {
-					lat: results[0].geometry.location.lat(),
-					lng: results[0].geometry.location.lng()
-				}
-				
-				$.when(self.options.stores.sortByDistanceFrom(coords)).then(function(stores) {
-					self.refreshList(stores);
-				});
-			});
-		},
-		
 		refreshList: function(stores) {
 			var self = this;
 			this.storeViews = [];
 			
 			stores.each(function(store, index) {
 				var storeView = new Storelocator.StoreView({model: store});
-				storeView.bind('select', function(store) {
-					self.trigger('locator:select', store);
-				});
 				
 				if (store.get('distance').value < 40233.6) {
 					self.storeViews.push(storeView);
@@ -223,6 +203,8 @@ $(function() {
 			});
 	
 			this.setMarkers();
+			
+			this.trigger('mapRendered');
 		},
 		
 		setMarkers: function() {
@@ -267,6 +249,10 @@ $(function() {
 	Storelocator.AppView = Backbone.View.extend({
 		el: $('#storelocatorApp'),
 		
+		initialize: function() {
+			
+		},
+		
 		events: {
 			'submit #storeList .search': 'search'
 		},
@@ -305,20 +291,20 @@ $(function() {
 				stores: this.stores
 			});
 			
-			this.router = new Storelocator.Router({
-				stores: this.stores,
-				mapView: this.mapView
-			});
-			
-			Backbone.history.start({pushState: true, root: '/storelocator/storelocator.php/'});
-			
-			this.stores.bind('change:selected', function(store) {
-				self.router.navigate(sanitizeName(store.get('name')));
+			this.mapView.bind('mapRendered', function(){
+				self.router = new Storelocator.Router({
+					stores: self.stores,
+					mapView: self.mapView
+				});
+				
+				Backbone.history.start({pushState: true, root: '/storelocator/storelocator.php/'});
+				
+				self.stores.bind('change:selected', function(store) {
+					self.router.navigate(sanitizeName(store.get('name')));
+				});
 			});
 			
 			this.storeListView = new Storelocator.StoreListView({stores: this.stores});
-			
-			
 		},
 		
 		render: function() {
