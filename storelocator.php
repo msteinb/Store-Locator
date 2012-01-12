@@ -5,11 +5,11 @@
 
 	<link href="/storelocator/css/style.css" media="screen" rel="stylesheet" type="text/css" />
 	
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script type="text/javascript" src="/js/underscore.js"></script>
-	<script type="text/javascript" src="/js/backbone.js"></script>
-	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAfw9FI5V26iEmbKlf4MVcyd2xjwX5Nds8&sensor=false" ></script>
-	<script type="text/javascript" src="/storelocator/js/app.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="/js/underscore.js"></script>
+	<script src="/js/backbone.js"></script>
+	<script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAfw9FI5V26iEmbKlf4MVcyd2xjwX5Nds8&sensor=false"></script>
+	<script src="/storelocator/js/app.js"></script>
 	<script>
 		$(function() {
 			var appView = new Storelocator.AppView();

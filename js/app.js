@@ -146,37 +146,32 @@ $(function() {
 		el: $('#storeList'),
 		
 		initialize: function() {
-			var self = this;
-			
 			this.storeViews = [];
 			
 			this.options.stores.each(function(store, index) {
 				var storeView = new Storelocator.StoreView({model: store});
-				self.storeViews.push(storeView);
-			});
+				this.storeViews.push(storeView);
+			}, this);
 		},
 		
 		render: function() {
-			var self = this;
-			
-			self.$('.list').empty();
-			
+			this.$('.list').empty();
+
 			_.each(this.storeViews, function(storeView, index) {
-				self.$('.list').append(storeView.render().el);
-			});
+				this.$('.list').append(storeView.render().el);
+			}, this);
 		},
 		
 		refreshList: function(stores) {
-			var self = this;
 			this.storeViews = [];
 			
 			stores.each(function(store, index) {
 				var storeView = new Storelocator.StoreView({model: store});
 				
 				if (store.get('distance').value < 40233.6) {
-					self.storeViews.push(storeView);
+					this.storeViews.push(storeView);
 				}
-			});
+			}, this);
 			
 			this.render();
 		}
@@ -208,17 +203,15 @@ $(function() {
 		},
 		
 		setMarkers: function() {
-			var self = this;
-			
 			this.markers = {},
 			
 			this.options.stores.each(function(store) {
-				self.markers[store.get('id')] = new google.maps.Marker({
-					map: self.map,
+				this.markers[store.get('id')] = new google.maps.Marker({
+					map: this.map,
 					position: store.getGoogleLatLng(),
 					title: store.get('name')
 				});
-			});
+			}, this);
 		},
 		
 		selectMarker: function(store) {
@@ -280,8 +273,6 @@ $(function() {
 		},
 		
 		initialize: function() {
-			var self = this;
-			
 			this.stores = new Storelocator.Stores([{"id":"1","lat":"40.70834","lng":"-74.01093","name":"Store One","address":"100 Broadway","city":"New York","state":"New York","zip":"10005","country":"USA"},{"id":"2","lat":"40.71065","lng":"-74.00892","name":"Store Two","address":"200 Broadway","city":"New York","state":"New York","zip":"10038","country":"USA"},{"id":"3","lat":"40.71538","lng":"-74.00543","name":"Store Three","address":"300 Broadway","city":"New York","state":"New York","zip":"10007","country":"USA"},{"id":"4","lat":"34.05485","lng":"-118.38369","name":"Store Four","address":"1171 S Robertson Blvd","city":"Los Angeles","state":"CA","zip":"90035","country":"USA"},{"id":"5","lat":"34.05614","lng":"-118.39524","name":"Store Five","address":"1180 S Beverly Dr","city":"Los Angeles","state":"CA","zip":"90035","country":"USA"}]);
 			
 			this.mapView = new Storelocator.MapView({
@@ -291,18 +282,18 @@ $(function() {
 				stores: this.stores
 			});
 			
-			this.mapView.bind('mapRendered', function(){
-				self.router = new Storelocator.Router({
-					stores: self.stores,
-					mapView: self.mapView
+			this.mapView.bind('mapRendered', function() {
+				this.router = new Storelocator.Router({
+					stores: this.stores,
+					mapView: this.mapView
 				});
 				
 				Backbone.history.start({pushState: true, root: '/storelocator/storelocator.php/'});
 				
-				self.stores.bind('change:selected', function(store) {
-					self.router.navigate(sanitizeName(store.get('name')));
-				});
-			});
+				this.stores.bind('change:selected', function(store) {
+					this.router.navigate(sanitizeName(store.get('name')));
+				}, this);
+			}, this);
 			
 			this.storeListView = new Storelocator.StoreListView({stores: this.stores});
 		},
